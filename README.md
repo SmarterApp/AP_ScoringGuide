@@ -108,3 +108,26 @@ To update snapshot tests:
 $ ./test -u
 ```
 
+## Deployment
+
+### Deployment Checklist
+- Ensure that the client has been built.
+- Ensure that the server has been built.
+- Check the values of the variables in the .env file in the server directory to ensure that values for the API and IVS are correct.
+
+### Packaging the Application
+To package the application ensure that you have preformed the steps above in the deployment checklist. Next run the following commands:
+```
+> docker build -t {desired tag} .
+```
+After building the docker image verify your build using:
+```
+> docker run -p 3000:3000 {desired tag}
+```
+visit localhost:3000 and ensure that the application runs.
+Next push the image to docker hub so that it can be deployed.
+```
+> docker push {desired tag}
+```
+
+Now you are ready to deploy the score guide application. See the scoring guide configuration repo for instructions on how to deploy the application.

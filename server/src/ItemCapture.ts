@@ -1,15 +1,28 @@
 import * as Path from 'path';
 import * as FileStructure from 'fs';
 import { ItemGroupModel, ItemPdfModel, PdfViewType } from '@osu-cass/sb-components';
-const puppeteer = require('puppeteer');
+import { launch, Browser } from 'puppeteer';
 
 const { SCREENSHOT_WIDTH } = process.env;
+const screenshotWidth = Number(SCREENSHOT_WIDTH);
+
+interface IPassageRect {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+interface IQuestionRect extends IPassageRect {
+  itemId: string;
+}
 
 export class ItemCapture {
-  browser: any;
+  browser: Browser;
 
   async launchBrowser() {
-    this.browser = await puppeteer.launch({ args: ['--no-sandbox'] });
+    this.browser = await launch({ args: ['--no-sandbox'] });
+    // tslint:disable-next-line:no-console
     console.log('chrome url: ', this.browser.wsEndpoint());
   }
 
@@ -33,7 +46,7 @@ export class ItemCapture {
     const idsString = this.getIdString(itemData);
     await page.goto(`http://ivs.smarterbalanced.org/items?ids=${idsString}&isaap=TDS_SLM1`);
     await page.setViewport({
-      width: SCREENSHOT_WIDTH,
+      width: screenshotWidth,
       height: 1000
     });
     const iframe = await page.frames()[1];
@@ -51,7 +64,7 @@ export class ItemCapture {
     });
 
     await page.setViewport({
-      width: SCREENSHOT_WIDTH,
+      width: screenshotWidth,
       height: groupingHeight + headerHeight
     });
 
@@ -61,7 +74,7 @@ export class ItemCapture {
       itemData.passage.type === PdfViewType.picture &&
       !itemData.passage.captured
     ) {
-      const passageRect = await iframe.evaluate(() => {
+      const passageRect: IPassageRect = await iframe.evaluate(() => {
         const passage = document.querySelector('.thePassage');
         const rect = passage.getBoundingClientRect();
 
@@ -81,7 +94,7 @@ export class ItemCapture {
     }
 
     // questions
-    const itemRects = await iframe.evaluate(() => {
+    const itemRects: IQuestionRect[] = await iframe.evaluate(() => {
       const headerHeight = document.querySelector('.questionNumber').clientHeight;
       const elements = document.querySelector('.theQuestions').children;
       const rects = [];

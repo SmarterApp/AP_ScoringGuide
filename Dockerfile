@@ -16,6 +16,7 @@ RUN apt-get install -yq gconf-service libasound2 libatk1.0-0 libc6 libcairo2 lib
 COPY server/package.json /usr/src/server/
 WORKDIR /usr/src/server
 RUN npm install --production
+RUN npm install cheerio
 
 # Install client deps
 COPY client/package.json /usr/src/client/
